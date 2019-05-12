@@ -11,7 +11,6 @@
 #
 ######################################################################################################################
 import os
-import datetime
 import time
 import pickle
 
@@ -23,39 +22,71 @@ def find_files():
 
     for root, dirs, files in os.walk(folder_path):
         for file in files:
-            print(file)
-            print(os.path.join(root, file))
+            file_path = os.path.join(root, file)
             mod_time = time.ctime(os.path.getmtime(os.path.join(root, file)))
-
-            file_dic = {file: mod_time}
+            file_dic = {file_path: mod_time}
             file_list.append(file_dic)
-            print(file_list)
-            save_history(file_list)
+    return file_list
 
 
 # save the state of the folder
 def save_history(file_list):
-    with open ('folder_history.pkl', 'wb') as f:
+    with open('folder_history.pkl', 'wb') as f:
         pickle.dump(file_list, f)
 
+
 # compare the text file to the folder's current state
-def compare(file_list):
-    pass
+def compare(file_list_old):
+
+    # find file differences:
+    file_list_current = find_files()
+
+    # extract dictionary keys into a set for old files
+    old_files = []
+    for old_file in file_list_old:
+        for key, value in old_file.items():
+            old_files.append(key)
+    old_files_set = set(old_files)
+    print(old_files_set)
+
+    # extract dictionary keys into a set for current files
+    cur_files = []
+    for cur_file in file_list_current:
+        for key, value in cur_file.items():
+            cur_files.append(key)
+    cur_files_set = set(cur_files)
+    print(cur_files_set)
+
+    # compare the sets
+    diff_set1 = old_files_set.difference(cur_files_set)
+    diff_set2 = cur_files_set.difference(old_files_set)
+    diff_set = list(diff_set1) + list(diff_set2)
+    print(diff_set)
+
+    if diff_set != []:
+        print('Check the following files: ')
+        for path in diff_set:
+            print(path)
+    else:
+        print('No change')
+
+
+    # TODO find modification date/time differences
+
 
 
 def main():
-
+    # check if folder history file exists
     try:
-        fh = open('folder_history.pkl')
+        with open('folder_history.pkl', 'rb') as fh:
+            file_list = pickle.load(fh)
+            compare(file_list)
 
     except FileNotFoundError:
-        find_files()
-
-    else:
-        fh = open('folder_history.pkl', 'rb')
-        file_list = pickle.load(fh)
-        print(file_list)
+        file_list = find_files()
+        save_history(file_list)
 
 
 if __name__ == '__main__':
     main()
+
