@@ -13,30 +13,49 @@
 import os
 import datetime
 import time
+import pickle
 
 
 # find all files and files in subfolders: their names and last modified date/time
+def find_files():
+    folder_path = r'/Users/joelanderton/Desktop/Here'
+    file_list = []
 
-folder_path = r'/Users/joelanderton/Desktop/Here'
-file_list = []
-file_dic = {}
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            print(file)
+            print(os.path.join(root, file))
+            mod_time = time.ctime(os.path.getmtime(os.path.join(root, file)))
 
-for root, dirs, files in os.walk(folder_path):
-    for file in files:
-        print(file)
-        print(os.path.join(root, file))
-        mod_time = time.ctime(os.path.getmtime(os.path.join(root, file)))
+            file_dic = {file: mod_time}
+            file_list.append(file_dic)
+            print(file_list)
+            save_history(file_list)
 
-        file_dic = {file: mod_time}
-        file_list.append(file_dic)
-        print(file_list)
 
-# save the state of the folder in a text file
-with open('file_info.txt', 'w') as text:
-
-    for file_time in file_list:
-        for k, v in file_time.items():
-            text.writelines(k + v + '\n')
-
+# save the state of the folder
+def save_history(file_list):
+    with open ('folder_history.pkl', 'wb') as f:
+        pickle.dump(file_list, f)
 
 # compare the text file to the folder's current state
+def compare(file_list):
+    pass
+
+
+def main():
+
+    try:
+        fh = open('folder_history.pkl')
+
+    except FileNotFoundError:
+        find_files()
+
+    else:
+        fh = open('folder_history.pkl', 'rb')
+        file_list = pickle.load(fh)
+        print(file_list)
+
+
+if __name__ == '__main__':
+    main()
