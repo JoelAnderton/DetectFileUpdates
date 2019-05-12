@@ -13,7 +13,7 @@
 import os
 import datetime
 import time
-import shutil
+
 
 # find all files and files in subfolders: their names and last modified date/time
 
