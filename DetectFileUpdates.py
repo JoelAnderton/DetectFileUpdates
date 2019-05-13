@@ -37,7 +37,7 @@ def save_history(file_list):
 
 
 # compare the text file to the folder's current state
-def compare(file_list_old):
+def compare_filenames(file_list_old):
 
     # find file differences:
     file_list_current = find_files()
@@ -63,8 +63,6 @@ def compare(file_list_old):
     diff_list1 = list(diff_set1)
     diff_set2 = cur_files_set.difference(old_files_set)
     diff_list2 = list(diff_set2)
-    diff_set = list(diff_set1) + list(diff_set2)
-    #print(diff_set)
 
     if diff_list1 != []:
         print('Check the following DELETED/MOVED files: ')
@@ -86,19 +84,37 @@ def compare(file_list_old):
             with open('log.txt', 'a+') as log:
                 log.writelines(path + '\n')
     else:
-        print('No change')
+        print('No files were added or removed changes')
 
 
-    # TODO find modification date/time differences
+def compare_mod_date(file_list_old):
 
+    file_list_current = find_files()
 
+    # extract dictionary keys into a set for old files
+    flag_mod_date_happend = 0
+
+    for old_file in file_list_old:
+        for cur_file in file_list_current:
+            for old_key, old_value in old_file.items():
+                for cur_key, cur_value in cur_file.items():
+                    if old_key == cur_key and old_value != cur_value:
+                        flag_mod_date_happend = 1
+                        print('Updated Modified Date: ' + cur_key + ' -- ' + cur_value)
+                        with open('log.txt', 'a+') as log:
+                            log.writelines('################################################' + '\n')
+                            log.writelines(str(datetime.datetime.now()) + 'Updated Modified Date: ' + cur_key + ' -- ' + cur_value + '\n')
+
+    if flag_mod_date_happend == 0:
+        print('No files were modified')
 
 def main():
     # check if folder history file exists
     try:
         with open('folder_history.pkl', 'rb') as fh:
             file_list = pickle.load(fh)
-            compare(file_list)
+            compare_filenames(file_list)
+            compare_mod_date(file_list)
             file_list = find_files()
             save_history(file_list)
 
