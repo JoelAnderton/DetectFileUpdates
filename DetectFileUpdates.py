@@ -47,7 +47,7 @@ def compare(file_list_old):
         for key, value in old_file.items():
             old_files.append(key)
     old_files_set = set(old_files)
-    print(old_files_set)
+    #print(old_files_set)
 
     # extract dictionary keys into a set for current files
     cur_files = []
@@ -55,17 +55,25 @@ def compare(file_list_old):
         for key, value in cur_file.items():
             cur_files.append(key)
     cur_files_set = set(cur_files)
-    print(cur_files_set)
+    #print(cur_files_set)
 
     # compare the sets
     diff_set1 = old_files_set.difference(cur_files_set)
+    diff_list1 = list(diff_set1)
     diff_set2 = cur_files_set.difference(old_files_set)
+    diff_list2 = list(diff_set2)
     diff_set = list(diff_set1) + list(diff_set2)
-    print(diff_set)
+    #print(diff_set)
 
-    if diff_set != []:
-        print('Check the following files: ')
-        for path in diff_set:
+    if diff_list1 != []:
+        print('Check the following DELETED/MOVED files: ')
+        for path in list(diff_list1):
+            print(path)
+
+
+    elif diff_list2 != []:
+        print('Check the following NEW files: ')
+        for path in list(diff_list2):
             print(path)
     else:
         print('No change')
@@ -81,6 +89,8 @@ def main():
         with open('folder_history.pkl', 'rb') as fh:
             file_list = pickle.load(fh)
             compare(file_list)
+            file_list = find_files()
+            save_history(file_list)
 
     except FileNotFoundError:
         file_list = find_files()
