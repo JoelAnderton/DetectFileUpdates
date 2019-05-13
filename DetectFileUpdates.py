@@ -12,6 +12,7 @@
 ######################################################################################################################
 import os
 import time
+import datetime
 import pickle
 
 
@@ -67,14 +68,23 @@ def compare(file_list_old):
 
     if diff_list1 != []:
         print('Check the following DELETED/MOVED files: ')
+        with open('log.txt', 'a+') as log:
+            log.writelines('################################################' + '\n') 
+            log.writelines(str(datetime.datetime.now()) + ' -- DELETED/MOVED files:' + '\n')
         for path in list(diff_list1):
             print(path)
-
+            with open('log.txt', 'a+') as log:
+                log.writelines(path + '\n')
 
     elif diff_list2 != []:
         print('Check the following NEW files: ')
+        with open('log.txt', 'a+') as log:
+            log.writelines('################################################' + '\n')
+            log.writelines(str(datetime.datetime.now()) + ' -- NEW files:' + '\n')
         for path in list(diff_list2):
             print(path)
+            with open('log.txt', 'a+') as log:
+                log.writelines(path + '\n')
     else:
         print('No change')
 
