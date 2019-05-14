@@ -18,16 +18,19 @@ import re
 
 
 # find all files and files in subfolders: their names and last modified date/time
-def find_files(folder_path):
+def find_files(folder_path, initial):
     #folder_path = r'/Users/joelanderton/Desktop/Here'
     file_list = []
 
     for root, dirs, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
+            if initial == 1:
+                print('\rGathering files to monitor: ' + file_path, end='')
             mod_time = time.ctime(os.path.getmtime(os.path.join(root, file)))
             file_dic = {file_path: mod_time}
             file_list.append(file_dic)
+    print()
     return file_list
 
 
@@ -38,12 +41,12 @@ def save_history(file_list, folder):
 
 
 # compare the filenames that may have been added or deleted/moved
-def compare_filenames(file_list_old, folder_path, folder):
+def compare_filenames(file_list_old, folder_path, folder, initial):
 
     
            
     # find file differences:
-    file_list_current = find_files(folder_path)
+    file_list_current = find_files(folder_path, initial)
 
     # extract dictionary keys into a set for old files
     old_files = []
@@ -88,15 +91,16 @@ def compare_filenames(file_list_old, folder_path, folder):
         with open(folder + '_log.txt', 'a+') as log:
             log.writelines('\n' + '######## NEW/DELETED/MOVED files  ######### -- runtime --' + str(datetime.datetime.now()) + '\n') 
             log.writelines('No files were added or removed' + '\n')
-        print('No files were added or removed')
+        print('\n' + '########  NEW/DELETED/MOVED files  ######### -- runtime --' +  str(datetime.datetime.now()) + '\n')
+        print('No files were added or removed \n')
 
 
-def compare_mod_date(file_list_old, folder_path, folder):
+def compare_mod_date(file_list_old, folder_path, folder, initial):
 
     with open(folder + '_log.txt', 'a+') as log:
           log.writelines('\n' + '########  UPDATED Files  ######### -- runtime --' + str(datetime.datetime.now())  + '\n') 
     print('########  UPDATED Files  ######### -- runtime --' + str(datetime.datetime.now()))
-    file_list_current = find_files(folder_path)
+    file_list_current = find_files(folder_path, initial)
 
     # extract dictionary keys into a set for old files
     flag_mod_date_happend = 0
@@ -123,14 +127,17 @@ def main():
     folder = folder[-1:][0]
     try:
         with open( folder +'.pkl', 'rb') as fh:
+            initial = 0
             file_list = pickle.load(fh)
-            compare_filenames(file_list, folder_path, folder)
-            compare_mod_date(file_list, folder_path, folder)
-            file_list = find_files(folder_path)
+            compare_filenames(file_list, folder_path, folder, initial)
+            compare_mod_date(file_list, folder_path, folder, initial)
+            file_list = find_files(folder_path, initial)
             save_history(file_list, folder)
 
     except FileNotFoundError:
-        file_list = find_files(folder_path)
+        initial = 1
+        print('Initialized monitoring')
+        file_list = find_files(folder_path, initial)
         save_history(file_list, folder)
 
 
