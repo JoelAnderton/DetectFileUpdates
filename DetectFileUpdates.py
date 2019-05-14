@@ -6,8 +6,8 @@
 #          the program was run
 #
 #   1. Run an initial scan of folder and all its subfolders and files
-#   2. Save that information in a list
-#   3. Run the program again and compare its current state to the state saved in the list
+#   2. Save that information
+#   3. Run the program again and compare its current state to the state saved
 #
 ######################################################################################################################
 import os
@@ -36,7 +36,7 @@ def save_history(file_list):
         pickle.dump(file_list, f)
 
 
-# compare the text file to the folder's current state
+# compare the filenames that may have been added or deleted/moved
 def compare_filenames(file_list_old):
 
     # find file differences:
