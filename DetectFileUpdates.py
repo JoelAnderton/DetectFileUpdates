@@ -55,7 +55,6 @@ def compare_filenames(file_list_old, folder_path, folder, initial):
         for key, value in old_file.items():
             old_files.append(key)
     old_files_set = set(old_files)
-    #print(old_files_set)
 
     # extract dictionary keys into a set for current files
     cur_files = []
@@ -63,7 +62,6 @@ def compare_filenames(file_list_old, folder_path, folder, initial):
         for key, value in cur_file.items():
             cur_files.append(key)
     cur_files_set = set(cur_files)
-    #print(cur_files_set)
 
     # compare the sets
     diff_set1 = old_files_set.difference(cur_files_set)
@@ -113,13 +111,14 @@ def compare_mod_date(file_list_old, folder_path, folder, initial):
                     if old_key == cur_key and old_value != cur_value:
                         flag_mod_date_happend = 1
                         print(cur_key + ' -- Last Modified Date: ' + cur_value)
-                        with open(folder +'_log.txt', 'a+') as log:
+                        with open(folder + '_log.txt', 'a+') as log:
                             log.writelines(cur_key + ' -- Last Modified Date: ' + cur_value + '\n')
 
     if flag_mod_date_happend == 0:
-        with open(folder +'_log.txt', 'a+') as log:
+        with open(folder + '_log.txt', 'a+') as log:
              log.writelines('No files were modified' + '\n')
         print('No files were modified')
+
 
 def main():
     # check if folder history file exists
@@ -129,7 +128,7 @@ def main():
     folder = re.split(r'\\', folder_path)
     folder = folder[-1:][0]
     try:
-        with open(folder +'.pkl', 'rb') as fh:
+        with open(folder + '.pkl', 'rb') as fh:
             initial = 0
             file_list = pickle.load(fh)
             compare_filenames(file_list, folder_path, folder, initial)
