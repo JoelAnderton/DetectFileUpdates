@@ -14,11 +14,12 @@ import os
 import time
 import datetime
 import pickle
+import re
 
 
 # find all files and files in subfolders: their names and last modified date/time
-def find_files():
-    folder_path = r'/Users/joelanderton/Desktop/Here'
+def find_files(folder_path):
+    #folder_path = r'/Users/joelanderton/Desktop/Here'
     file_list = []
 
     for root, dirs, files in os.walk(folder_path):
@@ -31,16 +32,18 @@ def find_files():
 
 
 # save the state of the folder
-def save_history(file_list):
-    with open('folder_history.pkl', 'wb') as f:
+def save_history(file_list, folder):
+    with open(folder + '.pkl', 'wb') as f:
         pickle.dump(file_list, f)
 
 
 # compare the filenames that may have been added or deleted/moved
-def compare_filenames(file_list_old):
+def compare_filenames(file_list_old, folder_path, folder):
 
+    
+           
     # find file differences:
-    file_list_current = find_files()
+    file_list_current = find_files(folder_path)
 
     # extract dictionary keys into a set for old files
     old_files = []
@@ -65,31 +68,35 @@ def compare_filenames(file_list_old):
     diff_list2 = list(diff_set2)
 
     if diff_list1 != []:
-        print('Check the following DELETED/MOVED files: ')
-        with open('log.txt', 'a+') as log:
-            log.writelines('################################################' + '\n') 
-            log.writelines(str(datetime.datetime.now()) + ' -- DELETED/MOVED files:' + '\n')
+        print('\n' + '########  DELETED/MOVED files  #########')
+        with open(folder + '_log.txt', 'a+') as log:
+             log.writelines('\n' + '########  DELETED/MOVED files  ######### -- runtime --' + str(datetime.datetime.now()) + '\n') 
         for path in list(diff_list1):
             print(path)
-            with open('log.txt', 'a+') as log:
+            with open(folder + '_log.txt', 'a+') as log:
                 log.writelines(path + '\n')
 
-    elif diff_list2 != []:
-        print('Check the following NEW files: ')
-        with open('log.txt', 'a+') as log:
-            log.writelines('################################################' + '\n')
-            log.writelines(str(datetime.datetime.now()) + ' -- NEW files:' + '\n')
+    if diff_list2 != []:
+        print('\n' + '##########  NEW files  ########### -- ' + str(datetime.datetime.now()))
+        with open(folder + '_log.txt', 'a+') as log:
+             log.writelines('\n' + '##########  NEW files  ########### -- runtime --' + str(datetime.datetime.now()) + '\n') 
         for path in list(diff_list2):
             print(path)
-            with open('log.txt', 'a+') as log:
+            with open(folder + '_log.txt', 'a+') as log:
                 log.writelines(path + '\n')
     else:
-        print('No files were added or removed changes')
+        with open(folder + '_log.txt', 'a+') as log:
+            log.writelines('\n' + '######## NEW/DELETED/MOVED files  ######### -- runtime --' + str(datetime.datetime.now()) + '\n') 
+            log.writelines('No files were added or removed' + '\n')
+        print('No files were added or removed')
 
 
-def compare_mod_date(file_list_old):
+def compare_mod_date(file_list_old, folder_path, folder):
 
-    file_list_current = find_files()
+    with open(folder + '_log.txt', 'a+') as log:
+          log.writelines('\n' + '########  UPDATED Files  ######### -- runtime --' + str(datetime.datetime.now())  + '\n') 
+    print('########  UPDATED Files  ######### -- runtime --' + str(datetime.datetime.now()))
+    file_list_current = find_files(folder_path)
 
     # extract dictionary keys into a set for old files
     flag_mod_date_happend = 0
@@ -100,27 +107,31 @@ def compare_mod_date(file_list_old):
                 for cur_key, cur_value in cur_file.items():
                     if old_key == cur_key and old_value != cur_value:
                         flag_mod_date_happend = 1
-                        print('Updated Modified Date: ' + cur_key + ' -- ' + cur_value)
-                        with open('log.txt', 'a+') as log:
-                            log.writelines('################################################' + '\n')
-                            log.writelines(str(datetime.datetime.now()) + 'Updated Modified Date: ' + cur_key + ' -- ' + cur_value + '\n')
+                        print(cur_key + ' -- Last Modified Date: ' + cur_value)
+                        with open(folder +'_log.txt', 'a+') as log:
+                            log.writelines(cur_key + ' -- Last Modified Date: ' + cur_value + '\n')
 
     if flag_mod_date_happend == 0:
+        with open(folder +'_log.txt', 'a+') as log:
+             log.writelines('No files were modified' + '\n')
         print('No files were modified')
 
 def main():
     # check if folder history file exists
+    folder_path  = input('Drag/drop folder to monitor changes: ')
+    folder = re.split(r'\\', folder_path)
+    folder = folder[-1:][0]
     try:
-        with open('folder_history.pkl', 'rb') as fh:
+        with open( folder +'.pkl', 'rb') as fh:
             file_list = pickle.load(fh)
-            compare_filenames(file_list)
-            compare_mod_date(file_list)
-            file_list = find_files()
-            save_history(file_list)
+            compare_filenames(file_list, folder_path, folder)
+            compare_mod_date(file_list, folder_path, folder)
+            file_list = find_files(folder_path)
+            save_history(file_list, folder)
 
     except FileNotFoundError:
-        file_list = find_files()
-        save_history(file_list)
+        file_list = find_files(folder_path)
+        save_history(file_list, folder)
 
 
 if __name__ == '__main__':
