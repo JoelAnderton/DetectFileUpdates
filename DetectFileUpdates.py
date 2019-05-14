@@ -26,7 +26,10 @@ def find_files(folder_path, initial):
         for file in files:
             file_path = os.path.join(root, file)
             if initial == 1:
-                print('\rGathering files to monitor: ' + file_path, end='')
+                display_file_name = re.split(r'\\', folder_path)
+                display_file_name = display_file_name[-1:][0]
+                print('\rGathering files to monitor: ' + display_file_name, end='')
+
             mod_time = time.ctime(os.path.getmtime(os.path.join(root, file)))
             file_dic = {file_path: mod_time}
             file_list.append(file_dic)
@@ -43,8 +46,6 @@ def save_history(file_list, folder):
 # compare the filenames that may have been added or deleted/moved
 def compare_filenames(file_list_old, folder_path, folder, initial):
 
-    
-           
     # find file differences:
     file_list_current = find_files(folder_path, initial)
 
@@ -123,10 +124,12 @@ def compare_mod_date(file_list_old, folder_path, folder, initial):
 def main():
     # check if folder history file exists
     folder_path  = input('Drag/drop folder to monitor changes: ')
+    print()
+    folder_path = folder_path.replace('"','')
     folder = re.split(r'\\', folder_path)
     folder = folder[-1:][0]
     try:
-        with open( folder +'.pkl', 'rb') as fh:
+        with open(folder +'.pkl', 'rb') as fh:
             initial = 0
             file_list = pickle.load(fh)
             compare_filenames(file_list, folder_path, folder, initial)
