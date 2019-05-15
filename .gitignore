@@ -3,3 +3,7 @@
 ################################################################################
 
 /test.py
+*.pyproj
+/.vs/DetectFileUpdates/v15
+*.pkl
+/IRB Documents_log.txt

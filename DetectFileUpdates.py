@@ -124,7 +124,8 @@ def main():
     # check if folder history file exists
     folder_path  = input('Drag/drop folder to monitor changes: ')
     print()
-    folder_path = folder_path.replace('"','')
+    fix = u'\\\\?\\'  # fixes issue where the folder path is greater than 255 characters
+    folder_path = fix + folder_path.replace('"','')
     folder = re.split(r'\\', folder_path)
     folder = folder[-1:][0]
     try:
