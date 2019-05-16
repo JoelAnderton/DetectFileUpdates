@@ -26,11 +26,15 @@ def find_files(folder_path, initial):
         for file in files:
             file_path = os.path.join(root, file)
             if initial == 1:
-                display_file_name = re.split(r'\\', folder_path)
+                display_file_name = re.split(r'\\', file_path)
                 display_file_name = display_file_name[-1:][0]
                 print('\rGathering files to monitor: ' + display_file_name, end='')
+               
+            try:
+                mod_time = time.ctime(os.path.getmtime(os.path.join(root, file)))            
+            except:
+                mod_time = time.ctime(os.path.getmtime(os.path.join(u'\\\\?\\' + root, file))) # u'\\\\?\\' for file paths greater than 255 characters
 
-            mod_time = time.ctime(os.path.getmtime(os.path.join(root, file)))
             file_dic = {file_path: mod_time}
             file_list.append(file_dic)
     print()
@@ -121,13 +125,16 @@ def compare_mod_date(file_list_old, folder_path, folder, initial):
 
 
 def main():
-    # check if folder history file exists
+    
     folder_path  = input('Drag/drop folder to monitor changes: ')
     print()
-    fix = u'\\\\?\\'  # fixes issue where the folder path is greater than 255 characters
-    folder_path = fix + folder_path.replace('"','')
+    #fix = u'\\\\?\\'  # fixes issue where the folder path is greater than 255 characters
+    folder_path =  folder_path.replace('"','')
+
     folder = re.split(r'\\', folder_path)
     folder = folder[-1:][0]
+
+    # check if pickle file that holds the folder history exists
     try:
         with open(folder + '.pkl', 'rb') as fh:
             initial = 0
@@ -143,6 +150,9 @@ def main():
         file_list = find_files(folder_path, initial)
         save_history(file_list, folder)
 
+    finally:
+        print('Done!')
+        end = input('Press Enter....')
 
 if __name__ == '__main__':
     main()
