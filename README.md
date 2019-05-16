@@ -1,5 +1,5 @@
 # Detect File Updates
-To detect all file updates or additions in a given folder and its subfolders compared to the last time the program was run
+Python application to detect all file updates or additions in a given folder and its subfolders compared to the last time the program was run
 
 # What I Learned
 * Learned how to compare the contents of both keys and values between 2 dictionaries.
