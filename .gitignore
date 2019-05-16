@@ -7,3 +7,4 @@
 /.vs/DetectFileUpdates/v15
 *.pkl
 /IRB Documents_log.txt
+__pycache__/
