@@ -19,7 +19,6 @@ import re
 
 # find all files and files in subfolders: their names and last modified date/time
 def find_files(folder_path, initial):
-    #folder_path = r'/Users/joelanderton/Desktop/Here'
     file_list = []
 
     for root, dirs, files in os.walk(folder_path):
@@ -49,8 +48,6 @@ def save_history(file_list, folder):
 
 # compare the filenames that may have been added or deleted/moved
 def compare_filenames(file_list_old, folder_path, folder, initial):
-
-    # find file differences:
     file_list_current = find_files(folder_path, initial)
 
     # extract dictionary keys into a set for old files
@@ -73,8 +70,9 @@ def compare_filenames(file_list_old, folder_path, folder, initial):
     diff_set2 = cur_files_set.difference(old_files_set)
     diff_list2 = list(diff_set2)
 
+    # find files that were deleted or moved
     if diff_list1 != []:
-        print('\n' + '########  DELETED/MOVED files  #########')
+        print('\n' + '########  DELETED/MOVED files  ######### -- runtime -- ' + str(datetime.datetime.now()))
         with open(folder + '_log.txt', 'a+') as log:
              log.writelines('\n' + '########  DELETED/MOVED files  ######### -- runtime --' + str(datetime.datetime.now()) + '\n') 
         for path in list(diff_list1):
@@ -82,14 +80,17 @@ def compare_filenames(file_list_old, folder_path, folder, initial):
             with open(folder + '_log.txt', 'a+') as log:
                 log.writelines(path + '\n')
 
+    # find new files
     if diff_list2 != []:
-        print('\n' + '##########  NEW files  ########### -- ' + str(datetime.datetime.now()))
+        print('\n' + '##########  NEW files  ########### -- runtime -- ' + str(datetime.datetime.now()))
         with open(folder + '_log.txt', 'a+') as log:
              log.writelines('\n' + '##########  NEW files  ########### -- runtime --' + str(datetime.datetime.now()) + '\n') 
         for path in list(diff_list2):
             print(path)
             with open(folder + '_log.txt', 'a+') as log:
                 log.writelines(path + '\n')
+
+    # if no new or deleted/moved files
     else:
         with open(folder + '_log.txt', 'a+') as log:
             log.writelines('\n' + '######## NEW/DELETED/MOVED files  ######### -- runtime --' + str(datetime.datetime.now()) + '\n') 
@@ -99,45 +100,43 @@ def compare_filenames(file_list_old, folder_path, folder, initial):
 
 
 def compare_mod_date(file_list_old, folder_path, folder, initial):
-
+    # open the saved history for the folder
     with open(folder + '_log.txt', 'a+') as log:
           log.writelines('\n' + '########  UPDATED Files  ######### -- runtime --' + str(datetime.datetime.now())  + '\n') 
     print('########  UPDATED Files  ######### -- runtime --' + str(datetime.datetime.now()))
     file_list_current = find_files(folder_path, initial)
 
     # extract dictionary keys into a set for old files
-    flag_mod_date_happend = 0
+    flag_mod_date_happend = 0 # flag if a modification happened or not (default to no)
 
     for old_file in file_list_old:
         for cur_file in file_list_current:
             for old_key, old_value in old_file.items():
                 for cur_key, cur_value in cur_file.items():
                     if old_key == cur_key and old_value != cur_value:
-                        flag_mod_date_happend = 1
+                        flag_mod_date_happend = 1 # flags modification happened
                         print(cur_key + ' -- Last Modified Date: ' + cur_value)
                         with open(folder + '_log.txt', 'a+') as log:
                             log.writelines(cur_key + ' -- Last Modified Date: ' + cur_value + '\n')
 
-    if flag_mod_date_happend == 0:
+    if flag_mod_date_happend == 0: # flag if a modification did not happened
         with open(folder + '_log.txt', 'a+') as log:
              log.writelines('No files were modified' + '\n')
         print('No files were modified')
 
 
-def main():
-    
+def main():    
     folder_path  = input('Drag/drop folder to monitor changes: ')
     print()
-    #fix = u'\\\\?\\'  # fixes issue where the folder path is greater than 255 characters
-    folder_path =  folder_path.replace('"','')
 
+    folder_path =  folder_path.replace('"','')
     folder = re.split(r'\\', folder_path)
     folder = folder[-1:][0]
 
-    # check if pickle file that holds the folder history exists
+    # check if saved history file that holds the folder history exists (pickle file)
     try:
         with open(folder + '.pkl', 'rb') as fh:
-            initial = 0
+            initial = 0 # flags that folder has not been initialized
             file_list = pickle.load(fh)
             compare_filenames(file_list, folder_path, folder, initial)
             compare_mod_date(file_list, folder_path, folder, initial)
@@ -145,7 +144,7 @@ def main():
             save_history(file_list, folder)
 
     except FileNotFoundError:
-        initial = 1
+        initial = 1  # flags that folder is being initialized
         print('Initialized monitoring')
         file_list = find_files(folder_path, initial)
         save_history(file_list, folder)
