@@ -1,6 +1,6 @@
 ######################################################################################################################
 # Created by: Joel Anderton
-# Created date: 4/11/2019
+# Created date: 5/11/2019
 #
 # Purpose: To detect all file updates or additions in a given folder and its subfolders compared to the last time
 #          the program was run
@@ -125,9 +125,42 @@ def compare_mod_date(file_list_old, folder_path, folder, initial):
         print('No files were modified')
 
 
-def main():    
-    folder_path  = input('Drag/drop folder to monitor changes: ')
+def main():
+    print("######################################################")
+    print("     Welcome to the Detect File Updates Program ")
     print()
+    print(" This program will monitor changes in a folder each time ")
+    print(" you drag and drop a folder into it.")
+    print()
+    print("          Created by: Joel Anderton")
+    print("          Updated: 5/11/2019")
+    print("          version: 1.0")
+    print()
+    print("######################################################")
+    print('For instructions, type "help"')
+    print()
+
+    folder_path  = input('Drag/drop in the folder you want to monitor changes: ')
+    print()
+
+    if folder_path == 'help':
+        print('''
+                Step 1. Drag and drop the folder you want to monitor directly 
+                        into the black space of the program. This puts in the 
+                        path to the folder and initializes the folder by recording 
+                        the current files and folders and their last modified times.
+                
+                Step 2. Whenever you want to check to see if any changes happened inside
+                        the folder, restart the program and drag/drop the folder back into it.
+                        
+                Step 3. Review the files that were added/deleted/moved or modified the program
+                        shows. Or refer to the _log.txt file for a history of what has happend to the
+                        folder since the last time the program was run. The _log.txt file is created
+                        in the same location of this program.
+                ''')
+        print()
+        folder_path  = input('Drag/drop in the folder you want to monitor changes: ')
+        print()
 
     folder_path =  folder_path.replace('"','')
     folder = re.split(r'\\', folder_path)
